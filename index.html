@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guía de Skills</title>
+<style>
+  :root {
+    --bg: #f6f5f1; --panel: #ffffff; --ink: #1c1b18; --muted: #6b6860; --line: #e4e1d8;
+    --accent: #c4552d; --accent-ink: #ffffff; --soft: #f1ede4; --new: #1d7a4d; --new-bg: #e3f3ea;
+    --shadow: 0 1px 2px rgba(0,0,0,.05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #151412; --panel: #1f1d1a; --ink: #efece4; --muted: #a09b90; --line: #2f2c27;
+      --accent: #e0714a; --accent-ink: #1a0e08; --soft: #2a2723; --new: #5fd29a; --new-bg: #17332a;
+      --shadow: none;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #151412; --panel: #1f1d1a; --ink: #efece4; --muted: #a09b90; --line: #2f2c27;
+    --accent: #e0714a; --accent-ink: #1a0e08; --soft: #2a2723; --new: #5fd29a; --new-bg: #17332a; --shadow: none;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { background: var(--bg); color: var(--ink); font: 15px/1.5 "Segoe UI", system-ui, sans-serif; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 20px 60px; }
+  header { position: sticky; top: 0; z-index: 5; background: var(--bg); padding: 18px 0 12px; border-bottom: 1px solid var(--line); }
+  .top { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  h1 { font-size: 22px; margin: 0; letter-spacing: -.01em; }
+  .count { color: var(--muted); font-size: 14px; }
+  .live { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); margin-left: auto; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--new); }
+  .dot.off { background: #b3423a; }
+  .search { margin-top: 12px; display: flex; gap: 10px; }
+  input[type=search] { flex: 1; font: inherit; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); outline: none; }
+  input[type=search]:focus { border-color: var(--accent); }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .chip { font: inherit; font-size: 13.5px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); cursor: pointer; }
+  .chip:hover { border-color: var(--accent); }
+  .chip[aria-pressed=true] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .chip small { opacity: .75; margin-left: 4px; }
+  button.icon { font: inherit; border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 10px; padding: 0 12px; cursor: pointer; }
+  details.guia { margin: 18px 0 4px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); }
+  details.guia summary { cursor: pointer; padding: 12px 16px; font-weight: 600; }
+  .guia-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 0 24px; padding: 0 16px 14px; }
+  .guia-row { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; border-top: 1px solid var(--line); font-size: 14px; }
+  .guia-row b { font-weight: 600; color: var(--accent); text-align: right; }
+  section.grupo { margin-top: 28px; }
+  section.grupo h2 { font-size: 18px; margin: 0; display: flex; align-items: baseline; gap: 10px; }
+  section.grupo .sub { color: var(--muted); font-size: 14px; margin: 2px 0 12px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 12px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 6px; }
+  .card.is-new { border-color: var(--new); }
+  .card .row { display: flex; align-items: center; gap: 8px; }
+  .cmd { font: 600 14.5px "Cascadia Mono", Consolas, monospace; color: var(--accent); }
+  .badge { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; padding: 2px 7px; border-radius: 6px; background: var(--new-bg); color: var(--new); }
+  .copy { margin-left: auto; font: inherit; font-size: 12.5px; border: 1px solid var(--line); background: var(--soft); color: var(--ink); border-radius: 8px; padding: 3px 9px; cursor: pointer; }
+  .copy:hover { border-color: var(--accent); }
+  .badge.rec { background: #dff3e4; color: #1d6b34; }
+  :root[data-theme="dark"] .badge.rec { background: #1d3a27; color: #7fd69a; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .badge.rec { background: #1d3a27; color: #7fd69a; } }
+  .nota { margin: 6px 0 0; font-size: 13px; opacity: .85; }
+  .tabs { display: flex; gap: 8px; margin-top: 12px; }
+  .tab { font: inherit; font-weight: 600; padding: 7px 16px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); cursor: pointer; }
+  .tab[aria-selected=true] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .badge.gris { background: var(--soft); color: var(--muted); }
+  .badge.aviso { background: #fbe9d9; color: #9a4a12; }
+  :root[data-theme="dark"] .badge.aviso { background: #3a2a1a; color: #f0b27a; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .badge.aviso { background: #3a2a1a; color: #f0b27a; } }
+  .usada { margin: 0; font-size: 13px; color: var(--new); }
+  .resumen { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; margin: 0 0 14px; font-size: 14px; }
+  .proy { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; margin-bottom: 12px; box-shadow: var(--shadow); }
+  .proy { padding: 0; }
+  .proy summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 12px 16px; border-radius: 12px; }
+  .proy summary::-webkit-details-marker { display: none; }
+  .proy summary:hover { background: var(--soft); }
+  .flecha { display: inline-block; width: 14px; color: var(--muted); transition: transform .15s; }
+  .proy[open] > summary .flecha { transform: rotate(90deg); }
+  .proy .cuerpo { padding: 0 16px 14px 38px; }
+  .mini { color: var(--muted); font-size: 13.5px; }
+  .acc { display: inline-flex; gap: 8px; margin-left: 12px; }
+  .acc .icon { padding: 3px 10px; font-size: 13px; }
+  .proy h3 { margin: 0; font-size: 16px; }
+  .ruta { font: 12.5px "Cascadia Mono", Consolas, monospace; color: var(--muted); margin: 2px 0 0; word-break: break-all; }
+  .stats { color: var(--muted); font-size: 13.5px; margin: 6px 0; }
+  .tema { font-size: 13.5px; margin: 0 0 8px; font-style: italic; color: var(--muted); }
+  .proy ul { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 8px; }
+  .proy li { border-top: 1px solid var(--line); padding-top: 8px; font-size: 14px; }
+  .proy li small { color: var(--muted); }
+  .para { display: block; font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .borrar { margin-left: auto; font: inherit; font-size: 12.5px; border: 1px solid #c9847d; background: transparent; color: #b3423a; border-radius: 8px; padding: 4px 10px; cursor: pointer; }
+  .borrar:hover:not(:disabled) { background: #b3423a; color: #fff; }
+  .borrar:disabled { opacity: .4; cursor: not-allowed; }
+  .es { margin: 0; }
+  .uso { margin: 0; font-size: 13.5px; color: var(--muted); }
+  .uso b { color: var(--ink); font-weight: 600; }
+  .orig { margin: 0; font-size: 13px; color: var(--muted); }
+  .hint { margin: 0; font-size: 13px; color: var(--new); }
+  .vacío, .empty { text-align: center; color: var(--muted); padding: 50px 0; }
+  .toast { position: fixed; right: 18px; bottom: 18px; background: var(--ink); color: var(--bg); padding: 11px 16px; border-radius: 10px; font-size: 14px; max-width: 360px; opacity: 0; transform: translateY(8px); transition: .25s; pointer-events: none; z-index: 20; }
+  .toast.show { opacity: 1; transform: none; }
+  @media (max-width: 640px) {
+    .wrap { padding: 0 16px 50px; }
+    h1 { font-size: 19px; }
+    .grid, .guia-grid { grid-template-columns: minmax(0, 1fr); }
+    .tab { padding: 7px 12px; font-size: 14px; }
+    .guia-row { flex-direction: column; gap: 2px; }
+    .guia-row b { text-align: left; }
+    .live { margin-left: 0; }
+    .proy summary { padding: 10px 12px; }
+    .borrar { margin-left: 0; }
+  }
+  footer { margin-top: 40px; color: var(--muted); font-size: 13px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="top">
+      <h1>📚 Guía de Skills</h1>
+      <span class="count" id="count"></span>
+      <span class="live" id="live"><span class="dot"></span><span id="liveText">Conectando…</span></span>
+      <button class="icon" id="theme" title="Cambiar tema claro / oscuro" aria-label="Cambiar tema">◐</button>
+    </div>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" data-vista="skills" aria-selected="true">📚 Skills</button>
+      <button class="tab" role="tab" data-vista="agentes" aria-selected="false">🤖 Agentes</button>
+      <button class="tab" role="tab" data-vista="proyectos" aria-selected="false">📁 Proyectos</button>
+    </div>
+    <div class="search"><input type="search" id="q" placeholder="Buscar por nombre o por lo que quieres hacer… (por ejemplo: subtítulos, 3D, guion)" autocomplete="off"></div>
+    <div class="chips" id="chips"></div>
+  </header>
+
+  <details class="guia" id="guiaBox" open>
+    <summary>🧭 Guía rápida: ¿qué uso según lo que quiero?</summary>
+    <div class="guia-grid" id="guia"></div>
+  </details>
+
+  <main id="main"></main>
+  <footer id="foot"></footer>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = (s) => document.querySelector(s);
+const esc = (t) => String(t ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const norm = (t) => String(t ?? '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+
+let data = null, filtro = 'todas', texto = '', hash = null, fallos = 0;
+// Modo "publicado" (móvil): si no estamos en el PC, los datos vienen de data.json y no hay proyectos.
+const ESTATICO = !/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+if (ESTATICO) {
+  const l = document.createElement('link'); l.rel = 'manifest'; l.href = 'manifest.webmanifest'; document.head.appendChild(l);
+  const t = document.createElement('meta'); t.name = 'theme-color'; t.content = '#c4552d'; document.head.appendChild(t);
+  const ic = document.createElement('link'); ic.rel = 'icon'; ic.href = 'icon-192.png'; document.head.appendChild(ic);
+  const ap = document.createElement('link'); ap.rel = 'apple-touch-icon'; ap.href = 'icon-192.png'; document.head.appendChild(ap);
+  document.querySelector('[data-vista="proyectos"]')?.remove();
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+const abiertos = new Set(); // proyectos desplegados (se conserva al refrescar)
+let vista = 'skills', proy = null, proyJson = '', usoMap = null; // proy: datos de proyectos; usoMap: skill -> dónde se usó
+const clave = (n) => String(n).replace(/^.*:/, '');
+
+function toast(msg, ms = 5000) {
+  const el = $('#toast'); el.textContent = msg; el.classList.add('show');
+  clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove('show'), ms);
+}
+
+function visibles() {
+  const q = norm(texto).trim();
+  return data.skills.filter((s) => {
+    if (filtro === '_nunca') { if (!usoMap || usoMap.has(clave(s.name))) return false; }
+    else if (filtro !== 'todas' && s.cat !== filtro) return false;
+    if (!q) return true;
+    return norm([s.name, s.es, s.uso, s.description].join(' ')).includes(q);
+  });
+}
+
+function chips() {
+  const cuenta = (id) => data.skills.filter((s) => s.cat === id).length;
+  const items = [{ id: 'todas', icono: '📚', nombre: 'Todas', n: data.total }]
+    .concat(data.categorias.filter((c) => cuenta(c.id) > 0).map((c) => ({ id: c.id, icono: c.icono, nombre: c.nombre, n: cuenta(c.id) })));
+  if (usoMap) items.push({ id: '_nunca', icono: '💤', nombre: 'Nunca usadas', n: data.skills.filter((s) => !usoMap.has(clave(s.name))).length });
+  $('#chips').innerHTML = items.map((c) =>
+    `<button class="chip" data-id="${c.id}" aria-pressed="${filtro === c.id}">${c.icono} ${esc(c.nombre)}<small>${c.n}</small></button>`).join('');
+}
+
+function tarjeta(s) {
+  const cmd = '/' + s.name;
+  const cuerpo = s.es
+    ? `<p class="es">${esc(s.es)}</p><p class="uso"><b>Úsala para:</b> ${esc(s.uso)}</p>`
+    : `<p class="orig">${esc(s.description || 'Sin descripción.')}</p>
+       <p class="hint">Aún sin explicación en castellano. Pídele a Claude: «añade ${esc(s.name)} a la guía de skills».</p>`;
+  const u = usoMap && usoMap.get(clave(s.name));
+  const marca = !usoMap ? '' : u ? '' : '<span class="badge gris">Nunca usada</span>';
+  const dondeUsada = u ? `<p class="usada">✅ Usada en: ${u.map((x) => `${esc(x.nombre)} (${x.veces}×)`).join(', ')}</p>` : '';
+  return `<article class="card ${s.nueva ? 'is-new' : ''}">
+    <div class="row"><span class="cmd">${esc(cmd)}</span>${s.nueva ? '<span class="badge">Nueva</span>' : ''}${s.nota ? '<span class="badge rec">★ Recomendada</span>' : ''}${marca}
+      <button class="copy" data-copy="${esc(cmd)}">Copiar</button></div>${cuerpo}${s.nota ? `<p class="nota">★ ${esc(s.nota)}</p>` : ""}${dondeUsada}</article>`;
+}
+
+// ---- Agentes ----
+let ag = null, agJson = '', generado = 0;
+const ORIGEN = { tuyo: ['👤 Tuyos', 'Los creaste o instalaste tú (carpeta ~/.claude/agents).'], plugin: ['🔌 De plugins', 'Vienen con un plugin.'], integrado: ['⚙️ Incluidos en Claude', 'Ya vienen con Claude, no hay que instalarlos.'] };
+function tarjetaAgente(a) {
+  const cuerpo = a.es ? `<p class="es">${esc(a.es)}</p><p class="uso"><b>Úsalo para:</b> ${esc(a.uso)}</p>`
+    : `<p class="orig">${esc(a.description || 'Sin descripción.')}</p><p class="hint">Aún sin explicación en castellano.</p>`;
+  const puede = a.herramientas ? `<p class="uso"><b>Puede usar:</b> ${esc(a.herramientas)}</p>` : '';
+  return `<article class="card ${a.nuevo ? 'is-new' : ''}"><div class="row"><span class="cmd">${esc(a.name)}</span>${a.nuevo ? '<span class="badge">Nuevo</span>' : ''}
+    <span class="badge gris" title="Modelo que usa">🧠 ${esc(a.modelo)}</span></div>${cuerpo}${puede}</article>`;
+}
+function renderAgentes() {
+  if (!ag) { $('#main').innerHTML = '<p class="empty">Leyendo tus agentes…</p>'; return; }
+  const q = norm(texto).trim();
+  const lista = ag.agentes.filter((a) => !q || norm([a.name, a.es, a.uso, a.description, a.modelo].join(' ')).includes(q));
+  $('#main').innerHTML = `<p class="sub">Un agente es un ayudante con su propia memoria, sus herramientas y, a veces, su propio modelo. Claude puede delegarle trabajo.</p>` +
+    (['tuyo', 'plugin', 'integrado'].map((o) => {
+      const del = lista.filter((a) => a.origen === o); if (!del.length) return '';
+      return `<section class="grupo"><h2>${ORIGEN[o][0]} <span class="count">${del.length}</span></h2><p class="sub">${ORIGEN[o][1]}</p><div class="grid">${del.map(tarjetaAgente).join('')}</div></section>`;
+    }).join('') || '<p class="empty">No hay agentes que coincidan.</p>');
+}
+async function cargarAg() {
+  if (ESTATICO) return; // en el móvil los agentes llegan dentro de data.json
+  try {
+    const r = await fetch('/api/agentes', { cache: 'no-store' }); if (!r.ok) return;
+    const txt = await r.text(); if (txt === agJson) return;
+    agJson = txt; ag = JSON.parse(txt);
+    if (vista === 'agentes' && data) render();
+  } catch { /* se reintenta solo */ }
+}
+
+// ---- Proyectos ----
+function fechaRel(ms) {
+  if (!ms) return 'sin datos';
+  const d = Math.floor((Date.now() - ms) / 86400000);
+  const f = new Date(ms).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+  return d <= 0 ? 'hoy' : d === 1 ? 'ayer' : `hace ${d} días (${f})`;
+}
+function tam(kb) { return kb > 1024 ? (kb / 1024).toFixed(1) + ' MB' : kb + ' KB'; }
+
+function tarjetaProy(p) {
+  const skills = p.skills.length
+    ? `<ul>${p.skills.map((s) => `<li><span class="cmd">/${esc(s.name)}</span> <small>${[s.claude ? `Claude ${s.claude}×` : '', s.tu ? `tú ${s.tu}×` : ''].filter(Boolean).join(' · ')}</small>
+        ${s.para.map((t) => `<span class="para">Para: «${esc(t)}»</span>`).join('')}</li>`).join('')}</ul>`
+    : '<p class="stats">Sin skills usadas en este proyecto.</p>';
+  const n = p.skills.length;
+  const mini = `${n ? `${n} skill${n === 1 ? '' : 's'}` : 'sin skills'} · ${fechaRel(p.ultima)}`;
+  return `<details class="proy" data-id="${esc(p.id)}" ${abiertos.has(p.id) ? 'open' : ''}>
+    <summary><span class="flecha">▸</span><h3>${esc(p.nombre)}</h3>${p.temporal ? '<span class="badge gris">Temporal</span>' : ''}${p.activa ? '<span class="badge">En uso ahora</span>' : ''}
+      <span class="mini">${esc(mini)}</span>
+      <button class="borrar" data-id="${esc(p.id)}" data-nombre="${esc(p.nombre)}" data-ses="${p.sesiones}" data-mem="${p.memoria}" ${p.activa ? 'disabled title="Hay una sesión abierta ahora mismo"' : ''}>🗑 Mover a la papelera</button></summary>
+    <div class="cuerpo">
+      <p class="ruta">${esc(p.ruta)}</p>
+      <p class="stats">${p.sesiones} sesión${p.sesiones === 1 ? '' : 'es'} · última ${fechaRel(p.ultima)} · ${tam(p.kb)} · ${p.memoria} nota${p.memoria === 1 ? '' : 's'} de memoria</p>
+      ${p.primer ? `<p class="tema">Empezó con: «${esc(p.primer)}»</p>` : ''}${skills}
+    </div></details>`;
+}
+
+function renderProyectos() {
+  if (!proy) { $('#main').innerHTML = '<p class="empty">Leyendo tus proyectos…</p>'; return; }
+  const q = norm(texto).trim();
+  const lista = proy.proyectos.filter((p) => !p.temporal).filter((p) => !q || norm([p.nombre, p.ruta, p.primer, ...p.skills.map((s) => s.name + ' ' + s.para.join(' '))].join(' ')).includes(q));
+  const usadas = new Set(proy.proyectos.flatMap((p) => p.skills.map((s) => clave(s.name))));
+  const instaladas = data ? data.skills.filter((s) => usadas.has(clave(s.name))).length : 0;
+  $('#main').innerHTML = `<section class="grupo"><h2>📁 Proyectos <span class="count">${lista.length}</span></h2>
+    <p class="sub">Cada carpeta donde has trabajado con Claude: qué skills se usaron y para qué.</p>
+    <div class="resumen">Has usado <b>${instaladas}</b> de tus <b>${data ? data.total : '?'}</b> skills instaladas.
+      «Mover a la papelera» no elimina nada: pasa la carpeta a <code>${esc(proy.papelera)}</code> y puedes recuperarla a mano.
+      <span class="acc"><button class="icon" data-acc="abrir">Abrir todos</button> <button class="icon" data-acc="cerrar">Cerrar todos</button></span></div>
+    ${lista.length ? lista.map(tarjetaProy).join('') : '<p class="empty">No hay proyectos que coincidan.</p>'}</section>`;
+}
+
+async function cargarProy() {
+  if (ESTATICO) return; // en el móvil no hay proyectos
+  try {
+    const r = await fetch('/api/proyectos', { cache: 'no-store' });
+    if (!r.ok) throw new Error((await r.json()).error || r.status);
+    const txt = await r.text();
+    if (txt === proyJson) return;
+    proyJson = txt; proy = JSON.parse(txt);
+    usoMap = new Map();
+    for (const p of proy.proyectos) for (const s of p.skills) {
+      const k = clave(s.name); if (!usoMap.has(k)) usoMap.set(k, []);
+      usoMap.get(k).push({ nombre: p.nombre, veces: s.veces });
+    }
+    if (data) render();
+  } catch { /* se reintenta solo */ }
+}
+
+async function borrarProy(btn) {
+  const { id, nombre, ses, mem } = btn.dataset;
+  const ok = confirm(`¿Mover «${nombre}» a la papelera?\n\nIncluye ${ses} sesión(es) con todo su historial y ${mem} nota(s) de memoria de Claude para esa carpeta.\nNo se borra: queda en ${proy.papelera} y puedes recuperarla.`);
+  if (!ok) return;
+  try {
+    const r = await fetch('/api/proyectos/borrar', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Guia': '1' }, body: JSON.stringify({ id }) });
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.error || r.status);
+    toast(`«${nombre}» movido a la papelera.`, 6000);
+    proyJson = ''; await cargarProy();
+  } catch (e) { toast('No se pudo: ' + e.message, 7000); }
+}
+
+function render() {
+  $('#count').textContent = `${data.total} skills instaladas` + (data.nuevas ? ` · ${data.nuevas} nueva${data.nuevas > 1 ? 's' : ''}` : '');
+  document.querySelectorAll('.tab').forEach((t) => t.setAttribute('aria-selected', String(t.dataset.vista === vista)));
+  $('#chips').style.display = $('#guiaBox').style.display = vista === 'skills' ? '' : 'none';
+  if (vista === 'proyectos') { renderProyectos(); return; }
+  if (vista === 'agentes') { renderAgentes(); return; }
+  const lista = visibles();
+  chips();
+  if (!lista.length) { $('#main').innerHTML = '<p class="empty">No hay skills que coincidan. Prueba con otra palabra.</p>'; return; }
+  const html = data.categorias.map((c) => {
+    const del = lista.filter((s) => s.cat === c.id);
+    if (!del.length) return '';
+    return `<section class="grupo"><h2>${c.icono} ${esc(c.nombre)} <span class="count">${del.length}</span></h2>
+      <p class="sub">${esc(c.desc)}</p><div class="grid">${del.map(tarjeta).join('')}</div></section>`;
+  }).join('');
+  $('#main').innerHTML = html;
+}
+
+function guia() {
+  $('#guia').innerHTML = data.guia.map((g) =>
+    `<div class="guia-row"><span>${esc(g.quiero)}</span><b>${esc(g.uso)}</b></div>`).join('');
+}
+
+async function cargar(primera) {
+  try {
+    const r = await fetch(ESTATICO ? 'data.json?v=' + Date.now() : '/api/skills', { cache: 'no-store' });
+    if (!r.ok) throw new Error(ESTATICO ? r.status : (await r.json()).error || r.status);
+    const crudo = await r.json();
+    const nuevo = ESTATICO ? crudo.skills : crudo;
+    if (ESTATICO) {
+      const t = JSON.stringify(crudo.agentes);
+      if (t !== agJson) { agJson = t; ag = crudo.agentes; if (vista === 'agentes' && data) render(); }
+      generado = crudo.generado;
+    }
+    fallos = 0;
+    $('.dot').classList.remove('off'); $('#liveText').textContent = 'Actualizándose sola';
+    if (nuevo.hash !== hash) {
+      if (!primera && data) {
+        const antes = new Set(data.skills.map((s) => s.folder));
+        const altas = nuevo.skills.filter((s) => !antes.has(s.folder)).map((s) => '/' + s.name);
+        const bajas = data.skills.filter((s) => !nuevo.skills.some((n) => n.folder === s.folder)).length;
+        if (altas.length) toast(`🆕 Skill nueva detectada: ${altas.join(', ')}`, 8000);
+        else if (bajas) toast(`Se ${bajas > 1 ? 'han quitado ' + bajas + ' skills' : 'ha quitado 1 skill'}.`);
+        else toast('Catálogo actualizado.');
+      }
+      data = nuevo; hash = nuevo.hash;
+      if (primera) guia();
+      render();
+      $('#foot').textContent = ESTATICO
+        ? `Copia del ${new Date(generado).toLocaleString('es-ES', { dateStyle: 'long', timeStyle: 'short' })} · se actualiza sola`
+        : `Leyendo ${data.dir} · se comprueba cada pocos segundos`;
+    }
+  } catch (e) {
+    fallos++;
+    if (fallos >= 2) { $('.dot').classList.add('off'); $('#liveText').textContent = 'Sin conexión: vuelve a abrir la guía'; }
+  }
+}
+
+document.addEventListener('click', (e) => {
+  const tab = e.target.closest('.tab'); if (tab) { vista = tab.dataset.vista; if (vista === 'proyectos') cargarProy(); if (vista === 'agentes') cargarAg(); render(); return; }
+  const acc = e.target.closest('[data-acc]');
+  if (acc && proy) { acc.dataset.acc === 'abrir' ? proy.proyectos.forEach((p) => abiertos.add(p.id)) : abiertos.clear(); renderProyectos(); return; }
+  const bor = e.target.closest('.borrar');
+  if (bor) { e.preventDefault(); if (!bor.disabled) borrarProy(bor); return; } // el botón vive dentro del <summary>: no debe plegar/desplegar
+  const chip = e.target.closest('.chip'); if (chip) { filtro = chip.dataset.id; render(); return; }
+  const cp = e.target.closest('.copy');
+  if (cp) { navigator.clipboard.writeText(cp.dataset.copy).then(() => toast(`Copiado ${cp.dataset.copy}`, 1800)).catch(() => toast('No se pudo copiar')); }
+});
+document.addEventListener('toggle', (e) => { // 'toggle' no burbujea: se escucha en captura
+  const d = e.target;
+  if (d.matches && d.matches('details.proy')) d.open ? abiertos.add(d.dataset.id) : abiertos.delete(d.dataset.id);
+}, true);
+$('#q').addEventListener('input', (e) => { texto = e.target.value; if (data) render(); });
+$('#theme').addEventListener('click', () => {
+  const oscuro = document.documentElement.dataset.theme === 'dark' ||
+    (!document.documentElement.dataset.theme && matchMedia('(prefers-color-scheme: dark)').matches);
+  document.documentElement.dataset.theme = oscuro ? 'light' : 'dark';
+  try { localStorage.setItem('tema', document.documentElement.dataset.theme); } catch {}
+});
+try { const t = localStorage.getItem('tema'); if (t) document.documentElement.dataset.theme = t; } catch {}
+
+cargar(true).then(() => { cargarProy(); cargarAg(); });
+setInterval(() => cargar(false), ESTATICO ? 120000 : 4000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) cargar(false); }); // al volver a abrirla en el móvil
+setInterval(cargarProy, 15000);
+setInterval(cargarAg, 6000);
+</script>
+</body>
+</html>
