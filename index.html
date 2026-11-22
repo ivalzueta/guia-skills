@@ -97,6 +97,16 @@
   .eq-cab code { font: 600 13.5px "Cascadia Mono", Consolas, monospace; color: var(--accent); }
   .flujo { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; margin: 0 0 10px; padding: 0; counter-reset: paso; }
   .flujo li { font-size: 12.5px; padding: 3px 9px; border-radius: 999px; background: var(--soft); border: 1px solid var(--line); }
+  .eqdet { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; margin: 0 0 12px; box-shadow: var(--shadow); }
+  .eqdet > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 13px 16px; border-radius: 12px; }
+  .eqdet > summary::-webkit-details-marker { display: none; }
+  .eqdet > summary:hover { background: var(--soft); }
+  .eqdet[open] > summary .flecha { transform: rotate(90deg); }
+  .eq-t { font-weight: 700; font-size: 16px; }
+  .eq-c { color: var(--accent); font: 600 13px "Cascadia Mono", Consolas, monospace; margin-left: auto; }
+  .eq-cuerpo { padding: 0 16px 16px; }
+  .acc-eq { display: flex; gap: 8px; margin: 0 0 12px; }
+  .acc-eq .icon { padding: 5px 12px; font-size: 13.5px; }
   .chips-skill { display: flex; flex-wrap: wrap; gap: 6px; margin: 2px 0 6px; }
   .chip-skill { font: 600 12.5px "Cascadia Mono", Consolas, monospace; padding: 2px 8px; border-radius: 7px; background: var(--soft); border: 1px solid var(--line); color: var(--ink); }
   .chip-skill.plugin { color: var(--muted); }
@@ -214,6 +224,9 @@ function tarjeta(s) {
 
 // ---- Agentes ----
 let ag = null, agJson = '', generado = 0;
+// Equipos desplegados (se recuerdan entre visitas; si el navegador no deja guardar, funciona igual)
+const abiertosEq = new Set((() => { try { return JSON.parse(localStorage.getItem('eqAbiertos') || '[]'); } catch { return []; } })());
+const guardarEq = () => { try { localStorage.setItem('eqAbiertos', JSON.stringify([...abiertosEq])); } catch { /* sin almacenamiento */ } };
 const ORIGEN = { tuyo: ['👤 Tuyos', 'Los creaste o instalaste tú (carpeta ~/.claude/agents).'], plugin: ['🔌 De plugins', 'Vienen con un plugin.'], integrado: ['⚙️ Incluidos en Claude', 'Ya vienen con Claude, no hay que instalarlos.'] };
 const chipSkill = (s) => {
   const nota = s.estado === 'plugin' ? ' · del plugin' : s.estado === 'falta' ? ' · ⚠ no instalada' : '';
@@ -247,18 +260,21 @@ function renderAgentes() {
     const eqCoincide = q && norm([e.nombre, e.comando, e.desc, ...e.skills.map((s) => s.name)].join(' ')).includes(q);
     const miembros = eqCoincide ? todos : todos.filter(coincide);
     if (!miembros.length) return '';
-    return `<section class="grupo equipo"><h2>${e.icono} ${esc(e.nombre)} <span class="count">${todos.length} agente${todos.length === 1 ? '' : 's'}</span></h2>
-      ${cabeceraEquipo(e)}<div class="grid">${miembros.map(tarjetaAgente).join('')}</div></section>`;
+    return `<details class="eqdet" data-id="${esc(e.id)}" ${q || abiertosEq.has(e.id) ? 'open' : ''}>
+      <summary><span class="flecha">▸</span><span class="eq-t">${e.icono} ${esc(e.nombre)}</span><span class="badge gris">${todos.length} agente${todos.length === 1 ? '' : 's'}</span><code class="eq-c">${esc(e.comando)}</code></summary>
+      <div class="eq-cuerpo">${cabeceraEquipo(e)}<div class="grid">${miembros.map(tarjetaAgente).join('')}</div></div></details>`;
   }).join('');
   const sueltos = ag.agentes.filter((a) => !a.equipo && coincide(a));
   const sinEquipo = ['tuyo', 'plugin', 'integrado'].map((o) => {
     const del = sueltos.filter((a) => a.origen === o); if (!del.length) return '';
     return `<h3 class="sub-grupo">${ORIGEN[o][0]} <span class="count">${del.length}</span></h3><p class="sub">${ORIGEN[o][1]}</p><div class="grid">${del.map(tarjetaAgente).join('')}</div>`;
   }).join('');
-  const sin = sinEquipo ? `<section class="grupo"><h2>🧍 Sin equipo <span class="count">${sueltos.length}</span></h2>
-      <p class="sub">Agentes que trabajan por su cuenta: no forman parte de ningún equipo.</p>${sinEquipo}</section>` : '';
-  $('#main').innerHTML = `<p class="sub">Un agente es un ayudante con su propia memoria, sus herramientas y, a veces, su propio modelo. Los <b>equipos</b> son grupos de agentes que trabajan juntos bajo una skill; los demás van «sin equipo».</p>` +
-    ((equipos + sin) || '<p class="empty">No hay agentes que coincidan.</p>');
+  const sin = sinEquipo ? `<details class="eqdet" data-id="sin-equipo" ${q || abiertosEq.has('sin-equipo') ? 'open' : ''}>
+      <summary><span class="flecha">▸</span><span class="eq-t">🧍 Sin equipo</span><span class="badge gris">${sueltos.length} agente${sueltos.length === 1 ? '' : 's'}</span><span class="eq-c">Trabajan por su cuenta</span></summary>
+      <div class="eq-cuerpo"><p class="sub">Agentes que no forman parte de ningún equipo.</p>${sinEquipo}</div></details>` : '';
+  const botones = `<div class="acc-eq"><button class="icon" data-acceq="abrir">Abrir todos</button> <button class="icon" data-acceq="cerrar">Cerrar todos</button></div>`;
+  $('#main').innerHTML = `<p class="sub">Un agente es un ayudante con su propia memoria, sus herramientas y, a veces, su propio modelo. Los <b>equipos</b> son grupos de agentes que trabajan juntos bajo una skill; los demás van «sin equipo». Pulsa un equipo para desplegarlo.</p>` +
+    ((equipos + sin) ? botones + equipos + sin : '<p class="empty">No hay agentes que coincidan.</p>');
 }
 async function cargarAg() {
   if (ESTATICO) return; // en el móvil los agentes llegan dentro de data.json
@@ -401,6 +417,11 @@ async function cargar(primera) {
 
 document.addEventListener('click', (e) => {
   const tab = e.target.closest('.tab'); if (tab) { vista = tab.dataset.vista; if (vista === 'proyectos') cargarProy(); if (vista === 'agentes') cargarAg(); render(); return; }
+  const acq = e.target.closest('[data-acceq]');
+  if (acq && ag) {
+    if (acq.dataset.acceq === 'abrir') { (ag.equipos || []).forEach((x) => abiertosEq.add(x.id)); abiertosEq.add('sin-equipo'); } else abiertosEq.clear();
+    guardarEq(); renderAgentes(); return;
+  }
   const acc = e.target.closest('[data-acc]');
   if (acc && proy) { acc.dataset.acc === 'abrir' ? proy.proyectos.forEach((p) => abiertos.add(p.id)) : abiertos.clear(); renderProyectos(); return; }
   const bor = e.target.closest('.borrar');
@@ -412,6 +433,7 @@ document.addEventListener('click', (e) => {
 document.addEventListener('toggle', (e) => { // 'toggle' no burbujea: se escucha en captura
   const d = e.target;
   if (d.matches && d.matches('details.proy')) d.open ? abiertos.add(d.dataset.id) : abiertos.delete(d.dataset.id);
+  if (d.matches && d.matches('details.eqdet') && !texto) { d.open ? abiertosEq.add(d.dataset.id) : abiertosEq.delete(d.dataset.id); guardarEq(); }
 }, true);
 $('#q').addEventListener('input', (e) => { texto = e.target.value; if (data) render(); });
 $('#theme').addEventListener('click', () => {
