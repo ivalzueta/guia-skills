@@ -248,7 +248,9 @@ function cabeceraEquipo(e) {
   const flujo = (e.flujo || []).map((p) => `<li>${esc(p)}</li>`).join('');
   return `<div class="eq-cab"><p class="eq-cmd"><b>Se usa con:</b> <code>${esc(e.comando)}</code></p><p>${esc(e.desc)}</p>
     ${flujo ? `<ol class="flujo">${flujo}</ol>` : ''}
-    <p class="uso"><b>Skills del equipo:</b></p><div class="chips-skill">${e.skills.map(chipSkill).join('')}</div></div>`;
+    <p class="uso"><b>Skills del equipo:</b></p><div class="chips-skill">${e.skills.map(chipSkill).join('')}</div>
+    ${(e.niveles || []).length ? `<p class="uso"><b>Niveles del equipo y líder recomendado</b> (el líder lo cambias tú con /model):</p>
+      <div class="chips-skill">${e.niveles.map((n) => `<span class="chip-skill" title="${esc(n.hint)}">${esc(n.nombre)} → líder ${esc(n.lider)}</span>`).join('')}</div>` : ''}</div>`;
 }
 function renderAgentes() {
   if (!ag) { $('#main').innerHTML = '<p class="empty">Leyendo tus agentes…</p>'; return; }
