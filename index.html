@@ -92,6 +92,18 @@
   .borrar { margin-left: auto; font: inherit; font-size: 12.5px; border: 1px solid #c9847d; background: transparent; color: #b3423a; border-radius: 8px; padding: 4px 10px; cursor: pointer; }
   .borrar:hover:not(:disabled) { background: #b3423a; color: #fff; }
   .borrar:disabled { opacity: .4; cursor: not-allowed; }
+  .eq-cab { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; margin: 0 0 12px; font-size: 14px; }
+  .eq-cab p { margin: 0 0 8px; }
+  .eq-cab code { font: 600 13.5px "Cascadia Mono", Consolas, monospace; color: var(--accent); }
+  .flujo { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; margin: 0 0 10px; padding: 0; counter-reset: paso; }
+  .flujo li { font-size: 12.5px; padding: 3px 9px; border-radius: 999px; background: var(--soft); border: 1px solid var(--line); }
+  .chips-skill { display: flex; flex-wrap: wrap; gap: 6px; margin: 2px 0 6px; }
+  .chip-skill { font: 600 12.5px "Cascadia Mono", Consolas, monospace; padding: 2px 8px; border-radius: 7px; background: var(--soft); border: 1px solid var(--line); color: var(--ink); }
+  .chip-skill.plugin { color: var(--muted); }
+  .chip-skill.falta { background: #fbe9d9; border-color: #e3b48a; color: #9a4a12; }
+  :root[data-theme="dark"] .chip-skill.falta { background: #3a2a1a; border-color: #6b4a2a; color: #f0b27a; }
+  .sub-grupo { font-size: 15px; margin: 18px 0 2px; display: flex; align-items: baseline; gap: 8px; }
+  section.equipo { margin-top: 34px; }
   .es { margin: 0; }
   .uso { margin: 0; font-size: 13.5px; color: var(--muted); }
   .uso b { color: var(--ink); font-weight: 600; }
@@ -203,22 +215,50 @@ function tarjeta(s) {
 // ---- Agentes ----
 let ag = null, agJson = '', generado = 0;
 const ORIGEN = { tuyo: ['👤 Tuyos', 'Los creaste o instalaste tú (carpeta ~/.claude/agents).'], plugin: ['🔌 De plugins', 'Vienen con un plugin.'], integrado: ['⚙️ Incluidos en Claude', 'Ya vienen con Claude, no hay que instalarlos.'] };
+const chipSkill = (s) => {
+  const nota = s.estado === 'plugin' ? ' · del plugin' : s.estado === 'falta' ? ' · ⚠ no instalada' : '';
+  return `<span class="chip-skill ${s.estado}" title="${s.estado === 'falta' ? 'Esta skill no está instalada' : s.estado === 'plugin' ? 'Viene con un plugin' : 'Instalada'}">/${esc(s.name)}${nota}</span>`;
+};
 function tarjetaAgente(a) {
   const cuerpo = a.es ? `<p class="es">${esc(a.es)}</p><p class="uso"><b>Úsalo para:</b> ${esc(a.uso)}</p>`
     : `<p class="orig">${esc(a.description || 'Sin descripción.')}</p><p class="hint">Aún sin explicación en castellano.</p>`;
-  const puede = a.herramientas ? `<p class="uso"><b>Puede usar:</b> ${esc(a.herramientas)}</p>` : '';
+  const cuando = a.fase ? `<p class="uso"><b>Cuándo:</b> ${esc(a.fase)}</p>` : '';
+  const skills = a.skills && a.skills.length
+    ? `<p class="uso"><b>Skills que usa:</b></p><div class="chips-skill">${a.skills.map(chipSkill).join('')}</div>`
+    : `<p class="uso"><b>Skills que usa:</b> ninguna</p>`;
+  const extra = a.extra ? `<p class="uso"><b>Además usa:</b> ${esc(a.extra)}</p>` : '';
+  const puede = a.herramientas ? `<p class="uso"><b>Herramientas:</b> ${esc(a.herramientas)}</p>` : '';
   return `<article class="card ${a.nuevo ? 'is-new' : ''}"><div class="row"><span class="cmd">${esc(a.name)}</span>${a.nuevo ? '<span class="badge">Nuevo</span>' : ''}
-    <span class="badge gris" title="Modelo que usa">🧠 ${esc(a.modelo)}</span></div>${cuerpo}${puede}</article>`;
+    ${a.rol ? `<span class="badge rec">${esc(a.rol)}</span>` : ''}<span class="badge gris" title="Modelo que usa">🧠 ${esc(a.modelo)}</span></div>${cuerpo}${cuando}${skills}${extra}${puede}</article>`;
+}
+function cabeceraEquipo(e) {
+  const flujo = (e.flujo || []).map((p) => `<li>${esc(p)}</li>`).join('');
+  return `<div class="eq-cab"><p class="eq-cmd"><b>Se usa con:</b> <code>${esc(e.comando)}</code></p><p>${esc(e.desc)}</p>
+    ${flujo ? `<ol class="flujo">${flujo}</ol>` : ''}
+    <p class="uso"><b>Skills del equipo:</b></p><div class="chips-skill">${e.skills.map(chipSkill).join('')}</div></div>`;
 }
 function renderAgentes() {
   if (!ag) { $('#main').innerHTML = '<p class="empty">Leyendo tus agentes…</p>'; return; }
   const q = norm(texto).trim();
-  const lista = ag.agentes.filter((a) => !q || norm([a.name, a.es, a.uso, a.description, a.modelo].join(' ')).includes(q));
-  $('#main').innerHTML = `<p class="sub">Un agente es un ayudante con su propia memoria, sus herramientas y, a veces, su propio modelo. Claude puede delegarle trabajo.</p>` +
-    (['tuyo', 'plugin', 'integrado'].map((o) => {
-      const del = lista.filter((a) => a.origen === o); if (!del.length) return '';
-      return `<section class="grupo"><h2>${ORIGEN[o][0]} <span class="count">${del.length}</span></h2><p class="sub">${ORIGEN[o][1]}</p><div class="grid">${del.map(tarjetaAgente).join('')}</div></section>`;
-    }).join('') || '<p class="empty">No hay agentes que coincidan.</p>');
+  const porNombre = new Map(ag.agentes.map((a) => [a.name, a]));
+  const coincide = (a) => !q || norm([a.name, a.es, a.uso, a.description, a.modelo, a.rol, a.fase, ...(a.skills || []).map((s) => s.name)].join(' ')).includes(q);
+  const equipos = (ag.equipos || []).map((e) => {
+    const todos = e.agentes.map((n) => porNombre.get(n)).filter(Boolean);
+    const eqCoincide = q && norm([e.nombre, e.comando, e.desc, ...e.skills.map((s) => s.name)].join(' ')).includes(q);
+    const miembros = eqCoincide ? todos : todos.filter(coincide);
+    if (!miembros.length) return '';
+    return `<section class="grupo equipo"><h2>${e.icono} ${esc(e.nombre)} <span class="count">${todos.length} agente${todos.length === 1 ? '' : 's'}</span></h2>
+      ${cabeceraEquipo(e)}<div class="grid">${miembros.map(tarjetaAgente).join('')}</div></section>`;
+  }).join('');
+  const sueltos = ag.agentes.filter((a) => !a.equipo && coincide(a));
+  const sinEquipo = ['tuyo', 'plugin', 'integrado'].map((o) => {
+    const del = sueltos.filter((a) => a.origen === o); if (!del.length) return '';
+    return `<h3 class="sub-grupo">${ORIGEN[o][0]} <span class="count">${del.length}</span></h3><p class="sub">${ORIGEN[o][1]}</p><div class="grid">${del.map(tarjetaAgente).join('')}</div>`;
+  }).join('');
+  const sin = sinEquipo ? `<section class="grupo"><h2>🧍 Sin equipo <span class="count">${sueltos.length}</span></h2>
+      <p class="sub">Agentes que trabajan por su cuenta: no forman parte de ningún equipo.</p>${sinEquipo}</section>` : '';
+  $('#main').innerHTML = `<p class="sub">Un agente es un ayudante con su propia memoria, sus herramientas y, a veces, su propio modelo. Los <b>equipos</b> son grupos de agentes que trabajan juntos bajo una skill; los demás van «sin equipo».</p>` +
+    ((equipos + sin) || '<p class="empty">No hay agentes que coincidan.</p>');
 }
 async function cargarAg() {
   if (ESTATICO) return; // en el móvil los agentes llegan dentro de data.json

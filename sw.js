@@ -1,5 +1,5 @@
 // Guía de Skills (móvil): red primero para estar siempre al día; sin red, la última copia guardada.
-const V = '758306afbb';
+const V = '2e33a6a856';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png'];
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(V).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));
