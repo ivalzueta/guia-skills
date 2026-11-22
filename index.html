@@ -241,7 +241,7 @@ function tarjetaAgente(a) {
     : `<p class="uso"><b>Skills que usa:</b> ninguna</p>`;
   const extra = a.extra ? `<p class="uso"><b>Además usa:</b> ${esc(a.extra)}</p>` : '';
   const puede = a.herramientas ? `<p class="uso"><b>Herramientas:</b> ${esc(a.herramientas)}</p>` : '';
-  return `<article class="card ${a.nuevo ? 'is-new' : ''}"><div class="row"><span class="cmd">${esc(a.name)}</span>${a.nuevo ? '<span class="badge">Nuevo</span>' : ''}
+  return `<article class="card ${a.nuevo ? 'is-new' : ''}"><div class="row"><span class="cmd">${esc(a.name)}</span>${a.nuevo ? '<span class="badge">Nuevo</span>' : ''}${a.propuesto ? '<span class="badge aviso" title="Sugerido para este equipo, pero aún no está conectado a su flujo">🧪 Propuesto</span>' : ''}
     ${a.rol ? `<span class="badge rec">${esc(a.rol)}</span>` : ''}<span class="badge gris" title="Modelo que usa">🧠 ${esc(a.modelo)}</span></div>${cuerpo}${cuando}${skills}${extra}${puede}</article>`;
 }
 function cabeceraEquipo(e) {
